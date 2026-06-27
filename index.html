@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FA01 Kayıp Bonus Hesaplayıcı</title>
+
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FA01 Kayıp Bonus">
+
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0f0f0f;
+  --card:#151515;
+  --input:#202020;
+  --border:#3a3a3a;
+  --green:#BEF264;
+  --green2:#A3E635;
+  --text:#ffffff;
+  --muted:#a3a3a3;
+}
+body{
+  margin:0;
+  padding:18px;
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(190,242,100,.08), transparent 28%),
+    linear-gradient(180deg,#111,#080808);
+  color:var(--text);
+}
+.card{
+  max-width:520px;
+  margin:0 auto;
+  background:linear-gradient(180deg,#191919,#111);
+  border:1px solid #343434;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 18px 45px rgba(0,0,0,.55);
+}
+.logo{
+  display:block;
+  width:100%;
+  max-width:310px;
+  margin:0 auto 18px;
+  border-radius:16px;
+}
+h1{
+  margin:8px 0 24px;
+  text-align:center;
+  font-size:31px;
+  line-height:1.15;
+  letter-spacing:.3px;
+}
+h1 span{color:var(--green)}
+.panel{
+  border:1px solid #343434;
+  border-radius:18px;
+  padding:18px;
+  background:rgba(255,255,255,.015);
+}
+label{
+  display:block;
+  margin:16px 0 8px;
+  font-weight:900;
+  font-size:18px;
+}
+.input-wrap{
+  display:flex;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:var(--input);
+  overflow:hidden;
+}
+.prefix{
+  min-width:56px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--green);
+  font-size:24px;
+  font-weight:900;
+  background:rgba(0,0,0,.18);
+  border-right:1px solid #303030;
+}
+input{
+  width:100%;
+  height:58px;
+  border:0;
+  outline:0;
+  padding:0 15px;
+  font-size:24px;
+  background:transparent;
+  color:#fff;
+}
+input::placeholder{color:#777}
+.input-wrap:focus-within{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(190,242,100,.13);
+}
+button{
+  width:100%;
+  margin-top:24px;
+  min-height:66px;
+  border:0;
+  border-radius:13px;
+  font-size:20px;
+  line-height:1.25;
+  font-weight:950;
+  background:linear-gradient(180deg,var(--green),var(--green2));
+  color:#101010;
+  box-shadow:0 0 24px rgba(190,242,100,.18);
+  cursor:pointer;
+}
+button:active{transform:scale(.99)}
+.result{
+  margin-top:18px;
+  padding:18px;
+  border:2px solid #3a3a3a;
+  border-radius:16px;
+  background:#171717;
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+.result.active{
+  border-color:var(--green);
+  background:linear-gradient(180deg,#21300d,#151515);
+}
+.badge{
+  min-width:58px;
+  height:58px;
+  border-radius:50%;
+  background:rgba(190,242,100,.13);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  color:var(--green);
+  font-weight:900;
+}
+.result-title{
+  font-size:18px;
+  font-weight:900;
+}
+.big{
+  margin-top:4px;
+  font-size:46px;
+  font-weight:950;
+  color:var(--green);
+  word-break:break-word;
+}
+.formula{
+  margin-top:6px;
+  color:#bdbdbd;
+  font-size:14px;
+}
+.footer{
+  margin-top:18px;
+  text-align:center;
+  color:#888;
+  font-size:13px;
+  letter-spacing:.4px;
+}
+.footer b{color:#3b82f6}
+@media(max-width:420px){
+  body{padding:12px}
+  .card{padding:18px}
+  h1{font-size:28px}
+  .big{font-size:39px}
+  button{font-size:18px}
+}
+</style>
+</head>
+<body>
+  <main class="card">
+    <img src="fa01-logo.jpg" alt="FA01 Betting Exchange" class="logo">
+
+    <h1><span>KAYIP BONUS</span><br>HESAPLAYICI</h1>
+
+    <section class="panel">
+      <label for="bahis">Bahis Miktarı (€)</label>
+      <div class="input-wrap">
+        <div class="prefix">€</div>
+        <input id="bahis" type="number" inputmode="decimal" step="0.01" placeholder="Örn: 1000">
+      </div>
+
+      <label for="oran">Bonus Oranı (%)</label>
+      <div class="input-wrap">
+        <div class="prefix">%</div>
+        <input id="oran" type="number" inputmode="decimal" step="0.01" placeholder="Örn: 30">
+      </div>
+
+      <button type="button" onclick="hesapla()">HESAPLA</button>
+
+      <div id="sonucBox" class="result">
+        <div class="badge">€</div>
+        <div>
+          <div class="result-title">Borsaya Yatırılacak Tutar (€)</div>
+          <div id="sonuc" class="big">0.00 €</div>
+          <div class="formula">Formül: Bahis Tutarı − Bonusun Yarısı</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer"><b>FA01</b> BETTING EXCHANGE</div>
+  </main>
+
+<script>
+function sayi(id){
+  var v = document.getElementById(id).value;
+  v = String(v).replace(",", ".");
+  var n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function hesapla(){
+  var bahis = sayi("bahis");
+  var oran = sayi("oran");
+
+  var bonus = (bahis * oran) / 100;
+  var yariBonus = bonus / 2;
+  var yatirilacak = bahis - yariBonus;
+
+  document.getElementById("sonuc").innerHTML = yatirilacak.toFixed(2) + " €";
+  document.getElementById("sonucBox").classList.add("active");
+}
+</script>
+</body>
+</html>
