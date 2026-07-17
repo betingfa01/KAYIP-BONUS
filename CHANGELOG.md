@@ -2,6 +2,18 @@
 
 Project: **FA01 Kayıp Bonus Hesaplayıcı** (repo: `betingfa01/KAYIP-BONUS`)
 
+## v1.1 — Desktop layout fix
+
+- **Added `@media (min-width:1024px){ .card{max-width:680px} }`.** The card's
+  width was capped at `520px` on every screen size, including large desktop
+  monitors, which read as an oversized mobile layout floating in empty space.
+  This adds a desktop-only breakpoint that widens the card to `680px` on
+  screens ≥1024px wide. Nothing else changes: the card stays centered
+  (`margin:0 auto`, unchanged), and every viewport below 1024px — phones,
+  small tablets, and the existing ≤420px mobile tweaks — renders exactly as
+  before, pixel-for-pixel. No colors, fonts, spacing, or component styling
+  were touched.
+
 This pass is a non-visual, non-functional hardening of the app for production
 deployment on GitHub Pages. **No UI, colors, layout, copy, or the calculation
 formula were changed.** Every change below is either invisible to the user or
