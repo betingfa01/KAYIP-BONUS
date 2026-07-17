@@ -2,12 +2,19 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FA01 Kayıp Bonus Hesaplayıcı</title>
+<meta name="description" content="FA01 Betting Exchange için kayıp bonus tutarını hızlıca hesaplayan, çevrimdışı çalışabilen araç.">
 <meta name="theme-color" content="#0f0f0f">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FA01 Kayıp Bonus">
+<meta name="application-name" content="FA01 Kayıp Bonus">
+<meta name="msapplication-TileColor" content="#0f0f0f">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -23,6 +30,7 @@
 body{
   margin:0;
   padding:14px;
+  padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
   min-height:100vh;
   font-family:Arial,Helvetica,sans-serif;
   background:radial-gradient(circle at top,rgba(190,242,100,.07),transparent 30%),linear-gradient(180deg,#111,#070707);
@@ -159,6 +167,7 @@ button{
 .footer b{color:var(--blue)}
 @media(max-width:420px){
   body{padding:10px}
+  body{padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
   .card{padding:14px}
   .logo{max-width:170px}
   h1{font-size:27px}
@@ -167,8 +176,13 @@ button{
 </style>
 </head>
 <body>
+<noscript>
+  <div style="max-width:520px;margin:40px auto;padding:18px;background:#191919;border:1px solid #343434;border-radius:16px;color:#fff;text-align:center;font-family:Arial,Helvetica,sans-serif;">
+    Bu hesaplayıcının çalışması için tarayıcınızda JavaScript'in etkin olması gerekir.
+  </div>
+</noscript>
 <main class="card">
-  <img src="fa01-logo.jpg" alt="FA01 Betting Exchange" class="logo">
+  <img src="fa01-logo.jpg" alt="FA01 Betting Exchange" class="logo" width="1152" height="912" fetchpriority="high">
   <h1><span>KAYIP BONUS</span><br>HESAPLAYICI</h1>
 
   <section class="panel">
@@ -178,10 +192,10 @@ button{
     <label for="oran">Bonus Oranı (%)</label>
     <div class="input-wrap"><div class="prefix">%</div><input id="oran" type="number" inputmode="decimal" step="0.01" placeholder="Örn: 30"></div>
 
-    <button type="button" onclick="hesapla()">HESAPLA</button>
+    <button type="button" id="hesaplaBtn">HESAPLA</button>
 
-    <div id="sonucBox" class="result">
-      <div class="badge">€</div>
+    <div id="sonucBox" class="result" role="status" aria-live="polite">
+      <div class="badge" aria-hidden="true">€</div>
       <div>
         <div class="result-title">Borsaya Yatırılacak Tutar (€)</div>
         <div id="sonuc" class="big">0.00 €</div>
@@ -193,16 +207,65 @@ button{
   <div class="footer"><b>FA01</b> BETTING EXCHANGE</div>
 </main>
 <script>
-function sayi(id){var v=document.getElementById(id).value;v=String(v).replace(",",".");var n=parseFloat(v);return isNaN(n)?0:n;}
-function hesapla(){
-  var bahis=sayi("bahis");
-  var oran=sayi("oran");
-  var bonus=(bahis*oran)/100;
-  var yariBonus=bonus/2;
-  var yatirilacak=bahis-yariBonus;
-  document.getElementById("sonuc").innerHTML=yatirilacak.toFixed(2)+" €";
-  document.getElementById("sonucBox").classList.add("active");
-}
+(function () {
+  'use strict';
+
+  function parseNumber(id) {
+    var el = document.getElementById(id);
+    if (!el) return 0;
+    var raw = String(el.value).replace(',', '.');
+    var n = parseFloat(raw);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function hesapla() {
+    try {
+      var bahis = parseNumber('bahis');
+      var oran = parseNumber('oran');
+      var bonus = (bahis * oran) / 100;
+      var yariBonus = bonus / 2;
+      var yatirilacak = bahis - yariBonus;
+
+      var sonucEl = document.getElementById('sonuc');
+      var boxEl = document.getElementById('sonucBox');
+      if (sonucEl) sonucEl.textContent = yatirilacak.toFixed(2) + ' €';
+      if (boxEl) boxEl.classList.add('active');
+    } catch (err) {
+      if (window.console && console.error) console.error('FA01 hesaplama hatası:', err);
+    }
+  }
+
+  function handleEnterKey(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      hesapla();
+    }
+  }
+
+  function init() {
+    var btn = document.getElementById('hesaplaBtn');
+    if (btn) btn.addEventListener('click', hesapla);
+
+    var bahisEl = document.getElementById('bahis');
+    var oranEl = document.getElementById('oran');
+    if (bahisEl) bahisEl.addEventListener('keydown', handleEnterKey);
+    if (oranEl) oranEl.addEventListener('keydown', handleEnterKey);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function (err) {
+        if (window.console && console.warn) console.warn('Service worker kaydı başarısız (uygulama çevrimiçi olarak çalışmaya devam eder):', err);
+      });
+    });
+  }
+})();
 </script>
 </body>
 </html>
