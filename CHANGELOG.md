@@ -2,6 +2,49 @@
 
 Project: **FA01 Kayıp Bonus Hesaplayıcı** (repo: `betingfa01/KAYIP-BONUS`)
 
+## v1.2 — Regression fix: hero logo distortion
+
+**Root cause:** v1's performance pass added `width="1152" height="912"` HTML
+attributes to the logo `<img>` to reserve space and avoid layout shift. This
+was safe in isolation, but interacted badly with the existing CSS:
+
+```css
+.logo{ display:block; width:100%; max-width:180px; margin:0 auto 10px; border-radius:12px; }
+```
+
+The `.logo` rule sets `width` but never sets `height`. Browsers map an
+unclaimed HTML `height` attribute onto the element as a low-priority
+*literal pixel* style (`height:912px`) — and because no CSS rule for
+`.logo` overrode `height`, that 912px hint won by default. The result: the
+image box became 180px wide (correct) but a fixed 912px tall (wrong),
+stretching/distorting the hero image on **every** screen size — not just
+desktop, which is why it broke on mobile too.
+
+**Fix:**
+- Removed the `width="1152" height="912"` HTML attributes from the `<img>`
+  entirely — the attribute-to-CSS mapping was the actual bug, so it's gone.
+- Replaced them with `aspect-ratio:1152/912;` directly in the `.logo` CSS
+  rule. This achieves the same goal (reserve correct space, avoid layout
+  shift) but as a real, author-controlled CSS property that always resolves
+  against the *width* the image actually renders at (`100%`, capped at
+  `180px`/`170px` on the ≤420px breakpoint) — it can never produce a fixed,
+  unscaled pixel height like the old attribute mapping did. `1152/912` is the
+  image's true native ratio (verified against the source file), so proportions
+  are pixel-identical to the original, un-hardened version.
+- Unsupported ancient browsers simply ignore `aspect-ratio` and fall back to
+  the image's natural intrinsic size once loaded — i.e. exactly the original,
+  pre-optimization behavior, with zero distortion risk either way.
+- Kept `fetchpriority="high"` on the image — it only affects fetch/load
+  scheduling, never box sizing or layout, so it carried no risk and needed no
+  change.
+- The `@media(min-width:1024px){ .card{max-width:680px} }` desktop-width fix
+  from v1.1 was left untouched — it only targets `.card`, not `.logo`, so it
+  was unrelated to this regression and remains in place.
+
+**Verified:** logo now renders at `180px × ~142px` (mobile/tablet) and the
+same ratio scaled inside the `680px` card (desktop) — matching the original,
+undistorted image proportions and spacing exactly.
+
 ## v1.1 — Desktop layout fix
 
 - **Added `@media (min-width:1024px){ .card{max-width:680px} }`.** The card's
